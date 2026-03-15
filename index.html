@@ -8,7 +8,377 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Ders Takip" />
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+:root {
+  --bg: #050816;
+  --bg-soft: #0b1020;
+  --accent: #3b82f6;
+  --accent-soft: rgba(59, 130, 246, 0.12);
+  --accent-strong: #2563eb;
+  --danger: #ef4444;
+  --text-main: #e5e7eb;
+  --text-muted: #9ca3af;
+  --radius-lg: 18px;
+  --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.75);
+  --shadow-subtle: 0 10px 30px rgba(15, 23, 42, 0.6);
+  --transition-fast: 0.18s ease-out;
+  --transition-med: 0.22s ease-out;
+}
+*,*::before,*::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  background: radial-gradient(circle at top left, #1e293b 0, #020617 38%, #000 100%);
+  color: var(--text-main);
+}
+.app-shell {
+  max-width: 1320px;
+  margin: 24px auto 32px;
+  padding: 16px 20px 24px;
+  border-radius: 28px;
+  background: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 55%),
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.18), transparent 55%),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.98));
+  box-shadow: 0 32px 90px rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  backdrop-filter: blur(26px);
+}
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.32);
+}
+.app-header h1 { margin: 0 0 4px; font-size: 26px; letter-spacing: 0.02em; }
+.subtitle { margin: 0; font-size: 13px; color: var(--text-muted); }
+.app-main {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1.9fr) 270px;
+  gap: 16px;
+}
+.students-panel, .lessons-panel, .summary-panel {
+  border-radius: var(--radius-lg);
+  background: radial-gradient(circle at top, rgba(30, 64, 175, 0.15), transparent 55%),
+    linear-gradient(155deg, #020617, #020617);
+  border: 1px solid rgba(148, 163, 184, 0.36);
+  box-shadow: var(--shadow-soft);
+  padding: 14px 14px 16px;
+  position: relative;
+  overflow: hidden;
+}
+.students-panel::before, .lessons-panel::before, .summary-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.09), transparent 55%);
+  opacity: 0.85;
+  mix-blend-mode: soft-light;
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.panel-header h2 { margin: 0; font-size: 17px; }
+.muted { margin: 4px 0 0; font-size: 12px; color: var(--text-muted); }
+.students-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  max-height: 520px;
+  overflow-y: auto;
+}
+.students-list li {
+  padding: 10px 11px;
+  border-radius: 12px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  cursor: pointer;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(30, 64, 175, 0.35);
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+.students-list li:hover {
+  background: rgba(30, 64, 175, 0.7);
+  border-color: var(--accent);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.8);
+  transform: translateY(-1px);
+}
+.students-list li.active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.96), rgba(6, 182, 212, 0.96));
+  border-color: rgba(191, 219, 254, 0.95);
+  color: #0b1120;
+  box-shadow: 0 18px 36px rgba(37, 99, 235, 0.9);
+}
+.students-list li span.name { font-weight: 500; }
+.students-list li span.badge {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.88);
+  color: var(--text-muted);
+}
+.students-list li.active span.badge {
+  background: rgba(15, 23, 42, 0.06);
+  color: #e5e7eb;
+}
+.lessons-content { margin-top: 6px; }
+.lessons-table-wrapper {
+  margin-top: 12px;
+  border-radius: 14px;
+  overflow: auto;
+  max-width: 100%;
+  box-shadow: var(--shadow-subtle);
+}
+.lesson-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: radial-gradient(circle at top left, var(--accent-soft), transparent 55%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.98));
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  box-shadow: var(--shadow-subtle);
+}
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.field label { color: var(--text-muted); }
+input[type="text"], input[type="number"], input[type="date"] {
+  background: rgba(15, 23, 42, 0.96);
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  color: var(--text-main);
+  padding: 7px 9px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+  background: rgba(15, 23, 42, 1);
+}
+.checkbox-field { justify-content: flex-end; }
+.checkbox-field label { display: inline-flex; align-items: center; gap: 6px; color: var(--text-main); }
+input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.98);
+  appearance: none;
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+}
+input[type="checkbox"]:checked {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  border-color: rgba(191, 219, 254, 0.95);
+}
+input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  color: #0b1120;
+  font-size: 11px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.lessons-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: rgba(15, 23, 42, 0.98);
+}
+.lessons-table thead {
+  background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.26), transparent 55%),
+    linear-gradient(135deg, #020617, #020617);
+}
+.lessons-table th, .lessons-table td {
+  padding: 8px 9px;
+  border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+  text-align: left;
+}
+.lessons-table th { font-weight: 500; color: var(--text-muted); font-size: 12px; }
+.lessons-table tbody tr:nth-child(even) { background: rgba(15, 23, 42, 0.98); }
+.lessons-table tbody tr:nth-child(odd) { background: rgba(15, 23, 42, 0.93); }
+.lessons-table tbody tr:hover { background: rgba(30, 64, 175, 0.55); }
+.lessons-table td.paid { color: #22c55e; }
+.lessons-table td.unpaid { color: #f59e0b; }
+.lessons-table button.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 8px;
+  transition: background var(--transition-fast), color var(--transition-fast), transform 0.08s ease-out;
+}
+.lessons-table button.icon-btn:hover {
+  background: rgba(15, 23, 42, 0.9);
+  color: #fca5a5;
+  transform: translateY(-0.5px);
+}
+.student-totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  padding: 9px 11px;
+  border-radius: 14px;
+  background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.18), transparent 55%),
+    linear-gradient(135deg, #020617, #020617);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  font-size: 12px;
+}
+.student-totals div { display: flex; align-items: center; justify-content: space-between; }
+.student-totals span { color: var(--text-muted); }
+.student-totals strong { font-size: 13px; }
+.summary-panel h2 { margin: 0 0 10px; font-size: 17px; }
+.summary-group {
+  margin-bottom: 12px;
+  padding: 10px 11px;
+  border-radius: 14px;
+  background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 55%),
+    linear-gradient(135deg, #020617, #020617);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  box-shadow: var(--shadow-subtle);
+}
+.summary-group h3 { margin: 0 0 6px; font-size: 13px; color: var(--text-muted); }
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 2px 0;
+}
+.summary-row span { color: var(--text-muted); }
+.summary-row strong { font-weight: 600; }
+.hint-box {
+  margin-top: 10px;
+  padding: 10px 11px;
+  font-size: 13px;
+  border-radius: 14px;
+  background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 55%),
+    linear-gradient(135deg, #020617, #020617);
+  border: 1px dashed rgba(148, 163, 184, 0.6);
+  color: var(--text-muted);
+}
+.student-actions { display: flex; gap: 6px; }
+.primary-btn, .secondary-btn, .danger-btn {
+  border-radius: 999px;
+  border: none;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  transition: background var(--transition-med), box-shadow var(--transition-med), transform 0.08s ease-out,
+    color var(--transition-med), border-color var(--transition-med);
+  white-space: nowrap;
+}
+.primary-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #0b1120;
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.9);
+}
+.primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 44px rgba(37, 99, 235, 0.95);
+}
+.primary-btn:active { transform: translateY(0); box-shadow: 0 8px 22px rgba(30, 64, 175, 0.9); }
+.secondary-btn {
+  background: rgba(15, 23, 42, 0.95);
+  color: var(--text-main);
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.85);
+}
+.secondary-btn:hover {
+  background: rgba(15, 23, 42, 1);
+  border-color: rgba(191, 219, 254, 0.9);
+}
+.secondary-btn:active { transform: translateY(0); box-shadow: 0 6px 18px rgba(15, 23, 42, 0.9); }
+.danger-btn {
+  background: rgba(127, 29, 29, 0.9);
+  color: #fee2e2;
+  border: 1px solid rgba(254, 202, 202, 0.85);
+  box-shadow: 0 14px 30px rgba(127, 29, 29, 0.8);
+}
+.danger-btn:hover { background: #b91c1c; }
+.primary-btn.small, .secondary-btn.small, .danger-btn.small { padding: 5px 10px; font-size: 11px; }
+button:disabled { opacity: 0.5; cursor: default; box-shadow: none; transform: none; }
+.hidden { display: none; }
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.modal.hidden { display: none; }
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.92));
+  backdrop-filter: blur(16px);
+}
+.modal-content {
+  position: relative;
+  z-index: 51;
+  background: linear-gradient(145deg, #020617, #020617);
+  padding: 18px 18px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.65);
+  width: 280px;
+  box-shadow: 0 30px 75px rgba(15, 23, 42, 0.95);
+}
+.modal-content h2 { margin: 0 0 10px; font-size: 16px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+@media (max-width: 1100px) {
+  .app-shell { margin: 0; border-radius: 0; max-width: 100%; min-height: 100vh; padding: 10px 10px 18px; }
+  .app-main {
+    grid-template-columns: 240px minmax(0, 1.5fr);
+    grid-template-rows: auto auto;
+    grid-template-areas: "students lessons" "summary lessons";
+  }
+  .students-panel { grid-area: students; }
+  .lessons-panel { grid-area: lessons; }
+  .summary-panel { grid-area: summary; }
+}
+@media (max-width: 840px) {
+  .app-main {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "students" "lessons" "summary";
+  }
+  .lesson-form { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto auto; }
+}
+@media (max-width: 600px) {
+  .app-shell { padding: 8px 8px 14px; }
+  .app-main { gap: 10px; }
+  .lesson-form { grid-template-columns: minmax(0, 1fr); }
+  .panel-header h2 { font-size: 15px; }
+  .primary-btn, .secondary-btn, .danger-btn { font-size: 13px; min-height: 44px; }
+  .students-panel, .lessons-panel, .summary-panel { padding: 10px 10px 12px; box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9); }
+  .students-list { max-height: 220px; }
+  .modal-content { width: calc(100vw - 40px); max-width: 360px; }
+}
+  </style>
 </head>
 <body>
   <div class="app-shell">
@@ -152,7 +522,380 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+(function () {
+  var STORAGE_KEY = "privateLessonTracker_v1";
+
+  function getSafeStorage() {
+    try {
+      var testKey = "__plt_test__";
+      window.localStorage.setItem(testKey, "1");
+      window.localStorage.removeItem(testKey);
+      return window.localStorage;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  var safeStorage = getSafeStorage();
+
+  function loadData() {
+    if (!safeStorage) return { students: [], selectedStudentId: null };
+    try {
+      var raw = safeStorage.getItem(STORAGE_KEY);
+      if (!raw) return { students: [], selectedStudentId: null };
+      var parsed = JSON.parse(raw);
+      if (!parsed.students) parsed.students = [];
+      return { students: parsed.students, selectedStudentId: parsed.selectedStudentId || null };
+    } catch (e) {
+      return { students: [], selectedStudentId: null };
+    }
+  }
+
+  function saveData(state) {
+    if (!safeStorage) return;
+    try {
+      safeStorage.setItem(STORAGE_KEY, JSON.stringify({
+        students: state.students,
+        selectedStudentId: state.selectedStudentId
+      }));
+    } catch (e) {}
+  }
+
+  function generateId() {
+    return Date.now() + "-" + Math.random().toString(16).slice(2);
+  }
+
+  function formatCurrency(amount) {
+    return amount.toFixed(0) + " ₺";
+  }
+
+  function getWeekRange(date) {
+    var d = new Date(date);
+    var day = d.getDay() || 7;
+    var monday = new Date(d);
+    monday.setDate(d.getDate() - (day - 1));
+    monday.setHours(0, 0, 0, 0);
+    var sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    return { start: monday, end: sunday };
+  }
+
+  function getMonthRange(date) {
+    var d = new Date(date);
+    var first = new Date(d.getFullYear(), d.getMonth(), 1);
+    var last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    first.setHours(0, 0, 0, 0);
+    last.setHours(23, 59, 59, 999);
+    return { start: first, end: last };
+  }
+
+  var state = loadData();
+
+  var studentsListEl = document.getElementById("studentsList");
+  var addStudentBtn = document.getElementById("addStudentBtn");
+  var editStudentBtn = document.getElementById("editStudentBtn");
+  var deleteStudentBtn = document.getElementById("deleteStudentBtn");
+  var currentStudentTitleEl = document.getElementById("currentStudentTitle");
+  var currentStudentRateEl = document.getElementById("currentStudentRate");
+  var noStudentHintEl = document.getElementById("noStudentHint");
+  var lessonsContentEl = document.getElementById("lessonsContent");
+  var lessonForm = document.getElementById("lessonForm");
+  var lessonDateInput = document.getElementById("lessonDate");
+  var lessonDurationInput = document.getElementById("lessonDuration");
+  var lessonRateInput = document.getElementById("lessonRate");
+  var lessonPaidInput = document.getElementById("lessonPaid");
+  var lessonsTableBody = document.getElementById("lessonsTableBody");
+  var studentTotalHoursEl = document.getElementById("studentTotalHours");
+  var studentTotalAmountEl = document.getElementById("studentTotalAmount");
+  var studentPaidAmountEl = document.getElementById("studentPaidAmount");
+  var studentUnpaidAmountEl = document.getElementById("studentUnpaidAmount");
+  var weekHoursEl = document.getElementById("weekHours");
+  var weekAmountEl = document.getElementById("weekAmount");
+  var monthHoursEl = document.getElementById("monthHours");
+  var monthAmountEl = document.getElementById("monthAmount");
+  var allHoursEl = document.getElementById("allHours");
+  var allAmountEl = document.getElementById("allAmount");
+  var allUnpaidEl = document.getElementById("allUnpaid");
+  var studentModal = document.getElementById("studentModal");
+  var studentModalTitle = document.getElementById("studentModalTitle");
+  var studentForm = document.getElementById("studentForm");
+  var studentNameInput = document.getElementById("studentName");
+  var studentDefaultRateInput = document.getElementById("studentDefaultRate");
+  var studentCancelBtn = document.getElementById("studentCancelBtn");
+  var exportDataBtn = document.getElementById("exportDataBtn");
+
+  var editingStudentId = null;
+
+  function openStudentModal(mode, student) {
+    if (mode === "new") {
+      studentModalTitle.textContent = "Yeni Öğrenci";
+      studentNameInput.value = "";
+      studentDefaultRateInput.value = "";
+      editingStudentId = null;
+    } else if (student) {
+      studentModalTitle.textContent = "Öğrenciyi Düzenle";
+      studentNameInput.value = student.name;
+      studentDefaultRateInput.value = student.defaultRate || "";
+      editingStudentId = student.id;
+    }
+    studentModal.classList.remove("hidden");
+  }
+
+  function closeStudentModal() {
+    studentModal.classList.add("hidden");
+  }
+
+  function getSelectedStudent() {
+    for (var i = 0; i < state.students.length; i++) {
+      if (state.students[i].id === state.selectedStudentId) return state.students[i];
+    }
+    return null;
+  }
+
+  function renderStudents() {
+    studentsListEl.innerHTML = "";
+    if (!state.students.length) {
+      var empty = document.createElement("li");
+      empty.textContent = "Henüz öğrenci yok";
+      empty.style.opacity = "0.7";
+      empty.style.cursor = "default";
+      studentsListEl.appendChild(empty);
+      return;
+    }
+    state.students.forEach(function (student) {
+      var li = document.createElement("li");
+      li.dataset.id = student.id;
+      if (student.id === state.selectedStudentId) li.classList.add("active");
+      var nameSpan = document.createElement("span");
+      nameSpan.className = "name";
+      nameSpan.textContent = student.name;
+      var badgeSpan = document.createElement("span");
+      badgeSpan.className = "badge";
+      var lessons = student.lessons || [];
+      var unpaid = 0;
+      for (var j = 0; j < lessons.length; j++) if (!lessons[j].paid) unpaid++;
+      badgeSpan.textContent = unpaid ? unpaid + " ödenmemiş" : "Tümü ödendi";
+      li.appendChild(nameSpan);
+      li.appendChild(badgeSpan);
+      li.addEventListener("click", function () {
+        state.selectedStudentId = student.id;
+        saveData(state);
+        renderAll();
+      });
+      studentsListEl.appendChild(li);
+    });
+  }
+
+  function renderLessons() {
+    var student = getSelectedStudent();
+    if (!student) {
+      currentStudentTitleEl.textContent = "Öğrenci seçin";
+      currentStudentRateEl.textContent = "";
+      noStudentHintEl.classList.remove("hidden");
+      lessonsContentEl.classList.add("hidden");
+      editStudentBtn.disabled = true;
+      deleteStudentBtn.disabled = true;
+      return;
+    }
+    currentStudentTitleEl.textContent = student.name;
+    currentStudentRateEl.textContent = student.defaultRate
+      ? "Varsayılan saatlik ücret: " + formatCurrency(student.defaultRate)
+      : "Varsayılan saatlik ücret tanımlı değil";
+    noStudentHintEl.classList.add("hidden");
+    lessonsContentEl.classList.remove("hidden");
+    editStudentBtn.disabled = false;
+    deleteStudentBtn.disabled = false;
+    lessonRateInput.value = student.defaultRate || "";
+    var todayStr = new Date().toISOString().slice(0, 10);
+    if (!lessonDateInput.value) lessonDateInput.value = todayStr;
+    var lessons = student.lessons || [];
+    lessonsTableBody.innerHTML = "";
+    var totalHours = 0, totalAmount = 0, paidAmount = 0;
+    var sorted = lessons.slice().sort(function (a, b) {
+      if (a.date < b.date) return 1;
+      if (a.date > b.date) return -1;
+      return 0;
+    });
+    sorted.forEach(function (lesson) {
+      var duration = Number(lesson.duration || 0);
+      var rate = Number(lesson.rate || 0);
+      var amount = duration * rate;
+      totalHours += duration;
+      totalAmount += amount;
+      if (lesson.paid) paidAmount += amount;
+      var tr = document.createElement("tr");
+      var dateTd = document.createElement("td");
+      dateTd.textContent = lesson.date;
+      var durationTd = document.createElement("td");
+      durationTd.textContent = duration.toFixed(2).replace(/\.00$/, "");
+      var rateTd = document.createElement("td");
+      rateTd.textContent = rate ? formatCurrency(rate) : "-";
+      var amountTd = document.createElement("td");
+      amountTd.textContent = amount ? formatCurrency(amount) : "-";
+      var paidTd = document.createElement("td");
+      paidTd.className = lesson.paid ? "paid" : "unpaid";
+      paidTd.textContent = lesson.paid ? "Ödendi" : "Bekliyor";
+      var actionsTd = document.createElement("td");
+      var toggleBtn = document.createElement("button");
+      toggleBtn.className = "icon-btn";
+      toggleBtn.title = "Ödeme durumunu değiştir";
+      toggleBtn.textContent = lesson.paid ? "✕" : "✓";
+      toggleBtn.addEventListener("click", function () {
+        lesson.paid = !lesson.paid;
+        saveData(state);
+        renderAll();
+      });
+      var deleteBtn = document.createElement("button");
+      deleteBtn.className = "icon-btn";
+      deleteBtn.title = "Dersi sil";
+      deleteBtn.textContent = "🗑";
+      deleteBtn.addEventListener("click", function () {
+        if (!confirm("Bu dersi silmek istediğinizden emin misiniz?")) return;
+        student.lessons = (student.lessons || []).filter(function (l) { return l.id !== lesson.id; });
+        saveData(state);
+        renderAll();
+      });
+      actionsTd.appendChild(toggleBtn);
+      actionsTd.appendChild(deleteBtn);
+      tr.appendChild(dateTd);
+      tr.appendChild(durationTd);
+      tr.appendChild(rateTd);
+      tr.appendChild(amountTd);
+      tr.appendChild(paidTd);
+      tr.appendChild(actionsTd);
+      lessonsTableBody.appendChild(tr);
+    });
+    var unpaidAmount = totalAmount - paidAmount;
+    studentTotalHoursEl.textContent = totalHours.toFixed(2).replace(/\.00$/, "");
+    studentTotalAmountEl.textContent = formatCurrency(totalAmount);
+    studentPaidAmountEl.textContent = formatCurrency(paidAmount);
+    studentUnpaidAmountEl.textContent = formatCurrency(unpaidAmount);
+  }
+
+  function renderSummary() {
+    var allLessons = [];
+    state.students.forEach(function (student) {
+      (student.lessons || []).forEach(function (lesson) {
+        allLessons.push(lesson);
+      });
+    });
+    var allHours = 0, allAmount = 0, allUnpaid = 0;
+    var now = new Date();
+    var weekRange = getWeekRange(now);
+    var monthRange = getMonthRange(now);
+    var weekHours = 0, weekAmount = 0, monthHours = 0, monthAmount = 0;
+    allLessons.forEach(function (lesson) {
+      var duration = Number(lesson.duration || 0);
+      var rate = Number(lesson.rate || 0);
+      var amount = duration * rate;
+      allHours += duration;
+      allAmount += amount;
+      if (!lesson.paid) allUnpaid += amount;
+      var d = new Date(lesson.date);
+      if (d >= weekRange.start && d <= weekRange.end) {
+        weekHours += duration;
+        weekAmount += amount;
+      }
+      if (d >= monthRange.start && d <= monthRange.end) {
+        monthHours += duration;
+        monthAmount += amount;
+      }
+    });
+    weekHoursEl.textContent = weekHours.toFixed(2).replace(/\.00$/, "");
+    weekAmountEl.textContent = formatCurrency(weekAmount);
+    monthHoursEl.textContent = monthHours.toFixed(2).replace(/\.00$/, "");
+    monthAmountEl.textContent = formatCurrency(monthAmount);
+    allHoursEl.textContent = allHours.toFixed(2).replace(/\.00$/, "");
+    allAmountEl.textContent = formatCurrency(allAmount);
+    allUnpaidEl.textContent = formatCurrency(allUnpaid);
+  }
+
+  function renderAll() {
+    renderStudents();
+    renderLessons();
+    renderSummary();
+  }
+
+  addStudentBtn.addEventListener("click", function () { openStudentModal("new"); });
+  editStudentBtn.addEventListener("click", function () {
+    var student = getSelectedStudent();
+    if (!student) return;
+    openStudentModal("edit", student);
+  });
+  deleteStudentBtn.addEventListener("click", function () {
+    var student = getSelectedStudent();
+    if (!student) return;
+    if (!confirm("'" + student.name + "' öğrencisini ve tüm derslerini silmek istediğinize emin misiniz?")) return;
+    state.students = state.students.filter(function (s) { return s.id !== student.id; });
+    if (state.selectedStudentId === student.id) state.selectedStudentId = null;
+    saveData(state);
+    renderAll();
+  });
+  studentCancelBtn.addEventListener("click", closeStudentModal);
+  studentForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = studentNameInput.value.trim();
+    var rateVal = studentDefaultRateInput.value;
+    var defaultRate = rateVal === "" ? null : Number(rateVal);
+    if (!name) return;
+    if (editingStudentId) {
+      for (var i = 0; i < state.students.length; i++) {
+        if (state.students[i].id === editingStudentId) {
+          state.students[i].name = name;
+          state.students[i].defaultRate = defaultRate;
+          break;
+        }
+      }
+    } else {
+      var newStudent = { id: generateId(), name: name, defaultRate: defaultRate, lessons: [] };
+      state.students.push(newStudent);
+      state.selectedStudentId = newStudent.id;
+    }
+    saveData(state);
+    closeStudentModal();
+    renderAll();
+  });
+  lessonForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var student = getSelectedStudent();
+    if (!student) return;
+    var date = lessonDateInput.value;
+    var durationVal = Number(lessonDurationInput.value);
+    var rateVal = lessonRateInput.value === "" ? student.defaultRate : Number(lessonRateInput.value);
+    if (!date || !durationVal || !rateVal) return;
+    var lesson = {
+      id: generateId(),
+      date: date,
+      duration: durationVal,
+      rate: rateVal,
+      paid: lessonPaidInput.checked
+    };
+    if (!student.lessons) student.lessons = [];
+    student.lessons.push(lesson);
+    lessonDurationInput.value = "";
+    lessonPaidInput.checked = false;
+    saveData(state);
+    renderAll();
+  });
+  exportDataBtn.addEventListener("click", function () {
+    var blob = new Blob([JSON.stringify({ students: state.students }, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "ozel-ders-kayitlari-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !studentModal.classList.contains("hidden")) closeStudentModal();
+  });
+
+  renderAll();
+})();
+  </script>
 </body>
 </html>
-
