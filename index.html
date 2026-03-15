@@ -25,12 +25,17 @@
   --transition-med: 0.22s ease-out;
 }
 *,*::before,*::after { box-sizing: border-box; }
+html {
+  -webkit-text-size-adjust: 100%;
+}
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  min-height: -webkit-fill-available;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
   background: radial-gradient(circle at top left, #1e293b 0, #020617 38%, #000 100%);
   color: var(--text-main);
+  -webkit-tap-highlight-color: transparent;
 }
 .app-shell {
   max-width: 1320px;
@@ -377,6 +382,155 @@ button:disabled { opacity: 0.5; cursor: default; box-shadow: none; transform: no
   .students-panel, .lessons-panel, .summary-panel { padding: 10px 10px 12px; box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9); }
   .students-list { max-height: 220px; }
   .modal-content { width: calc(100vw - 40px); max-width: 360px; }
+}
+
+/* iPhone 15 ve benzeri ekranlar: safe area + tasarım/renk optimizasyonu */
+@media (max-width: 430px) {
+  :root {
+    --accent: #0ea5e9;
+    --accent-strong: #0284c7;
+    --accent-soft: rgba(14, 165, 233, 0.18);
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --radius-lg: 20px;
+  }
+  body {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    background: #0c1222;
+    background-image: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(14, 165, 233, 0.2), transparent 50%),
+      radial-gradient(ellipse 80% 50% at 100% 50%, rgba(30, 64, 175, 0.15), transparent 45%),
+      linear-gradient(180deg, #0c1222 0%, #060b14 100%);
+  }
+  .app-shell {
+    margin: 0;
+    max-width: 100%;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    padding: 12px 14px 24px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    padding-top: calc(12px + env(safe-area-inset-top));
+    border-radius: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+  }
+  .app-header {
+    padding: 8px 0 14px;
+    flex-wrap: wrap;
+  }
+  .app-header h1 { font-size: 22px; font-weight: 700; }
+  .subtitle { font-size: 13px; color: var(--text-muted); }
+  .app-main { gap: 14px; margin-top: 14px; }
+  .students-panel, .lessons-panel, .summary-panel {
+    padding: 14px 16px 16px;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(15, 23, 42, 0.6);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  }
+  .students-panel::before, .lessons-panel::before, .summary-panel::before {
+    background: radial-gradient(ellipse 100% 60% at 0% 0%, rgba(14, 165, 233, 0.12), transparent 60%);
+    opacity: 1;
+  }
+  .panel-header h2 { font-size: 17px; font-weight: 600; }
+  .students-list {
+    max-height: 200px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .students-list li {
+    padding: 14px 16px;
+    min-height: 48px;
+    font-size: 15px;
+    border-radius: 14px;
+    margin-bottom: 6px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+  }
+  .students-list li.active {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    border-color: rgba(56, 189, 248, 0.6);
+    color: #fff;
+  }
+  .lesson-form {
+    padding: 14px 16px;
+    gap: 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(14, 165, 233, 0.35);
+    background: rgba(15, 23, 42, 0.7);
+  }
+  .field { font-size: 13px; }
+  .field label { color: var(--text-muted); }
+  input[type="text"], input[type="number"], input[type="date"] {
+    padding: 12px 14px;
+    font-size: 16px;
+    min-height: 48px;
+    border-radius: 12px;
+  }
+  input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+  }
+  .primary-btn, .secondary-btn, .danger-btn {
+    min-height: 48px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 14px;
+  }
+  .primary-btn.small, .secondary-btn.small, .danger-btn.small {
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  .lesson-form .primary-btn { width: 100%; }
+  .lessons-table-wrapper {
+    border-radius: 14px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .lessons-table th, .lessons-table td { padding: 12px 10px; font-size: 14px; }
+  .lessons-table button.icon-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px;
+  }
+  .student-totals {
+    padding: 14px 16px;
+    gap: 10px;
+    font-size: 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+  .student-totals strong { font-size: 15px; }
+  .summary-group {
+    padding: 14px 16px;
+    border-radius: 16px;
+    margin-bottom: 14px;
+  }
+  .summary-group h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .summary-row { font-size: 14px; padding: 4px 0; }
+  .hint-box {
+    padding: 14px 16px;
+    font-size: 14px;
+    border-radius: 14px;
+  }
+  .modal-backdrop {
+    background: rgba(6, 11, 20, 0.85);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .modal-content {
+    width: calc(100vw - 32px);
+    max-width: 380px;
+    margin: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    padding: 20px 20px 24px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    border-radius: 24px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: #0f172a;
+  }
+  .modal-content h2 { font-size: 18px; margin-bottom: 16px; }
+  .modal-actions { margin-top: 16px; gap: 12px; }
+  #exportDataBtn { width: 100%; justify-content: center; }
 }
   </style>
 </head>
