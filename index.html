@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Özel Ders Takip</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Özel ders öğrencilerin için saat, ücret ve ödeme takibi." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Ders Takip" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div>
+        <h1>Özel Ders Takip</h1>
+        <p class="subtitle">Öğrenciler, dersler, ödemeler ve toplamlar tek ekranda.</p>
+      </div>
+      <button id="exportDataBtn" class="secondary-btn">Verileri Dışa Aktar</button>
+    </header>
+
+    <main class="app-main">
+      <section class="students-panel">
+        <div class="panel-header">
+          <h2>Öğrenciler</h2>
+          <button id="addStudentBtn" class="primary-btn small">+ Yeni Öğrenci</button>
+        </div>
+        <ul id="studentsList" class="students-list"></ul>
+      </section>
+
+      <section class="lessons-panel">
+        <div class="panel-header">
+          <div>
+            <h2 id="currentStudentTitle">Öğrenci seçin</h2>
+            <p id="currentStudentRate" class="muted"></p>
+          </div>
+          <div class="student-actions">
+            <button id="editStudentBtn" class="secondary-btn small" disabled>Öğrenciyi Düzenle</button>
+            <button id="deleteStudentBtn" class="danger-btn small" disabled>Sil</button>
+          </div>
+        </div>
+
+        <div id="noStudentHint" class="hint-box">
+          Sol taraftan bir öğrenci seçin ya da yeni öğrenci ekleyin.
+        </div>
+
+        <div id="lessonsContent" class="lessons-content hidden">
+          <form id="lessonForm" class="lesson-form">
+            <div class="field">
+              <label for="lessonDate">Tarih</label>
+              <input type="date" id="lessonDate" required />
+            </div>
+            <div class="field">
+              <label for="lessonDuration">Süre (saat)</label>
+              <input type="number" id="lessonDuration" min="0.25" step="0.25" required />
+            </div>
+            <div class="field">
+              <label for="lessonRate">Saatlik Ücret (₺)</label>
+              <input type="number" id="lessonRate" min="0" step="1" required />
+            </div>
+            <div class="field checkbox-field">
+              <label>
+                <input type="checkbox" id="lessonPaid" />
+                Ödeme alındı
+              </label>
+            </div>
+            <button type="submit" class="primary-btn">Ders Ekle</button>
+          </form>
+
+          <div class="lessons-table-wrapper">
+            <table class="lessons-table">
+              <thead>
+                <tr>
+                  <th>Tarih</th>
+                  <th>Süre (saat)</th>
+                  <th>Saatlik (₺)</th>
+                  <th>Ders Ücreti (₺)</th>
+                  <th>Ödendi mi?</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="lessonsTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="student-totals">
+            <div><span>Toplam saat:</span> <strong id="studentTotalHours">0</strong></div>
+            <div><span>Toplam ücret:</span> <strong id="studentTotalAmount">0 ₺</strong></div>
+            <div><span>Alınan ödeme:</span> <strong id="studentPaidAmount">0 ₺</strong></div>
+            <div><span>Kalan (ödenmemiş):</span> <strong id="studentUnpaidAmount">0 ₺</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="summary-panel">
+        <h2>Genel Özet</h2>
+        <div class="summary-group">
+          <h3>Bu Hafta</h3>
+          <div class="summary-row">
+            <span>Saat</span><strong id="weekHours">0</strong>
+          </div>
+          <div class="summary-row">
+            <span>Tutar</span><strong id="weekAmount">0 ₺</strong>
+          </div>
+        </div>
+
+        <div class="summary-group">
+          <h3>Bu Ay</h3>
+          <div class="summary-row">
+            <span>Saat</span><strong id="monthHours">0</strong>
+          </div>
+          <div class="summary-row">
+            <span>Tutar</span><strong id="monthAmount">0 ₺</strong>
+          </div>
+        </div>
+
+        <div class="summary-group">
+          <h3>Tüm Zamanlar</h3>
+          <div class="summary-row">
+            <span>Toplam saat</span><strong id="allHours">0</strong>
+          </div>
+          <div class="summary-row">
+            <span>Toplam ücret</span><strong id="allAmount">0 ₺</strong>
+          </div>
+          <div class="summary-row">
+            <span>Ödenmemiş toplam</span><strong id="allUnpaid">0 ₺</strong>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="studentModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <h2 id="studentModalTitle">Yeni Öğrenci</h2>
+      <form id="studentForm">
+        <div class="field">
+          <label for="studentName">İsim</label>
+          <input type="text" id="studentName" required />
+        </div>
+        <div class="field">
+          <label for="studentDefaultRate">Varsayılan saatlik ücret (₺)</label>
+          <input type="number" id="studentDefaultRate" min="0" step="1" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="studentCancelBtn" class="secondary-btn">Vazgeç</button>
+          <button type="submit" class="primary-btn">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
